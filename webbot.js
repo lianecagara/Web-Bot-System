@@ -29,8 +29,56 @@ class Webbot {
       ),
     );
   }
+
+  static commands = {};
+  static cmdPath = "commands";
   static pkg = pkg;
-  static async loadAllCommands() {}
+
+  static async loadAllCommands(callback = async function () {}) {
+    const allFiles = fs
+      .readdirSync(this.cmdPath)
+      .filter((file) => file.endsWith(".js") || file.endsWith(".ts"));
+    const results = [];
+    for (const file of allFiles) {
+      try {
+        const data = await this.loadCommand(file);
+        results.push(data);
+      } catch (error) {
+        results.push({
+          file,
+          error,
+          data: null,
+          original: null,
+        });
+      }
+    }
+    return results;
+  }
+
+  static async loadCommand(file) {
+    const Command = require(path.join(__dirname, this.cmdPath, file));
+    const command = new Command();
+    const { settings, main } = command;
+    if (!settings.name) {
+      throw new Error("Command name is not defined");
+    }
+    if (!settings.description) {
+      throw new Error("Command description is not defined");
+    }
+    if (typeof main !== "function") {
+      throw new Error("Command main must be a function");
+    }
+    this.commands[settings.name] = command;
+    return {
+      file,
+      error: null,
+      data: command,
+      original: Command,
+    };
+  }
+  static handlerEvents(send, event) {
+    
+  }
 }
 global.Webbot = Webbot;
 

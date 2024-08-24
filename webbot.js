@@ -9,12 +9,27 @@ class Webbot {
     const { logger } = this;
     logger(`Starting **WEB BOT SYSTEM** v${pkg.version}`, "info");
     logger(`Author: **${pkg.author}**`, "info");
+
+    logger(`**| ----- Loading all commands ---- |**`.toUpperCase(), "commands");
+    console.log("\n");
+    await this.loadAllCommands((error, { file, data }) => {
+      if (error) {
+        return logger("**FAIL!!**", error, file);
+      }
+      logger(`Loaded from **${file}**.`, data.settings.name);
+    });
+    console.log("\n");
+    logger(
+      `Loaded all **${Object.keys(this.commands).length}** commands.`,
+      "commands",
+    );
+
     app.get("/", (req, res) => {
       res.send("Test...");
     });
 
     app.listen(3000, () => {
-      logger("Server started on port 3000", ":D", "express");
+      logger("Server started on port **3000**", ":D", "express");
     });
   }
   static logger(...args) {
@@ -43,20 +58,23 @@ class Webbot {
       try {
         const data = await this.loadCommand(file);
         results.push(data);
+        await callback(null, data);
       } catch (error) {
-        results.push({
+        const data = {
           file,
           error,
           data: null,
           original: null,
-        });
+        };
+        results.push(data);
+        await callback(error, data);
       }
     }
     return results;
   }
 
   static async loadCommand(file) {
-    const Command = require(path.join(__dirname, this.cmdPath, file));
+    const { Command } = require(path.join(__dirname, this.cmdPath, file));
     const command = new Command();
     const { settings, main } = command;
     if (!settings.name) {
@@ -76,9 +94,7 @@ class Webbot {
       original: Command,
     };
   }
-  static handlerEvents(send, event) {
-    
-  }
+  static handlerEvents(send, event) {}
 }
 global.Webbot = Webbot;
 

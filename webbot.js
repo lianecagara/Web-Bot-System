@@ -30,8 +30,8 @@ class Webbot {
       res.send("Test...");
     });
 
-    app.get("/api/event", (req, res) => {
-      return new Promise((resolve, reject) => {
+    app.get("/api/event", async (req, res) => {
+      const result = await new Promise((resolve, reject) => {
         const event = { ...req.query };
         Webbot.handlerEvents({
           resolve,
@@ -40,6 +40,7 @@ class Webbot {
           timestamp: Date.now(),
         });
       });
+      res.json(result);
     });
 
     app.listen(3000, () => {
@@ -110,7 +111,7 @@ class Webbot {
     };
   }
   static async handlerEvents({ resolve, reject, timestamp, event = {} }) {
-    const sendInst = new this.Send({ resolve, reject, timestamp });
+    const sendInst = new Webbot.Send({ resolve, reject, timestamp });
     const send = sendInst.send.bind(sendInst);
     try {
       event.body ??= "";
@@ -125,6 +126,7 @@ class Webbot {
       const { config, commands } = this;
 
       let [commandName, ...args] = event.body.split(" ");
+      console.log(event);
       let hasPrefix = commandName.startsWith(config.PREFIX);
       if (hasPrefix) {
         commandName = commandName.slice(config.PREFIX.length);
@@ -136,8 +138,16 @@ class Webbot {
       );
       const command = commands[match];
       if (!command) {
-        return send(`❌ Command "${commandName}" not found.`);
+        if (hasPrefix) {
+          return send(
+            `❌ Command ${commandName ? `"${commandName}"` : "you are using"} does not exist.`,
+          );
+        }
+        return send("FAIL", {
+          fail: true,
+        });
       }
+      this.logger("CALL COMMAND", commandName);
       const { settings, main } = command;
       if (settings.noPrefix !== true && !hasPrefix) {
         return;
@@ -147,19 +157,21 @@ class Webbot {
       return send(error.stack);
     }
   }
-  Send = class Send {
+  static Send = class Send {
     constructor({ resolve, reject, timestamp = Date.now() }) {
       Object.assign(this, { resolve, reject, timestamp });
     }
     async send(message, { ...extras } = {}) {
       const timestamp = Date.now();
-      this.resolve({
+      const result = {
         originalTimestamp: this.timestamp,
         timestamp,
         ping: timestamp - this.timestamp,
         message,
         ...extras,
-      });
+      };
+      this.resolve(result);
+      console.log("Sent response, ", result);
     }
   };
 }

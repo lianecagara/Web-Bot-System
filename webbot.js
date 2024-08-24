@@ -26,10 +26,8 @@ class Webbot {
       "commands",
     );
 
-    app.get("/", (req, res) => {
-      res.send("Test...");
-    });
-
+    app.use(express.static(path.join(__dirname, "public")));
+    
     app.get("/api/event", async (req, res) => {
       const result = await new Promise((resolve, reject) => {
         const event = { ...req.query };

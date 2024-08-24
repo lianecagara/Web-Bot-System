@@ -5,6 +5,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   sendCommandButton.addEventListener("click", async () => {
     const command = commandInput.value.trim();
+    commandInput.value = "";
+
     if (command) {
       chatBox.value += `> ${command}\n`;
       const { data } = await axios.get("/api/event", {
@@ -15,7 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!data.fail) {
         chatBox.value += `${data.message}\n\n`;
       }
-      commandInput.value = "";
       chatBox.scrollTop = chatBox.scrollHeight;
     }
   });

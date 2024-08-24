@@ -138,11 +138,14 @@ class Webbot {
       event.timestamp ??= timestamp;
       const { config, commands } = this;
 
-      let [commandName, ...args] = event.body.split(" ");
+      let [commandName = "", ...args] = event.body.split(" ");
       console.log(event);
       let hasPrefix = commandName.startsWith(config.PREFIX);
       if (hasPrefix) {
         commandName = commandName.slice(config.PREFIX.length);
+      }
+      if (commandName.toLowerCase() === "prefix" && !hasPrefix) {
+        return send(`✨ My Prefix is [ ${config.PREFIX} ]`);
       }
       const match = Object.keys(commands).find(
         (key) =>
@@ -160,6 +163,7 @@ class Webbot {
           fail: true,
         });
       }
+
       this.logger("CALL COMMAND", commandName);
       const { settings, main } = command;
       if (settings.noPrefix !== true && !hasPrefix) {

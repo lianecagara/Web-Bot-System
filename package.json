@@ -1,5 +1,5 @@
 {
-  "name": "nodejs",
+  "name": "web-bot-system",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "Liane & Symer",
   "license": "ISC",
   "dependencies": {
     "@types/node": "^18.0.6",

@@ -140,7 +140,7 @@ class Webbot {
       if (!command) {
         if (hasPrefix) {
           return send(
-            `❌ Command ${commandName ? `"${commandName}"` : "you are using"} does not exist.`,
+            `❌ Command ${commandName ? `"${commandName}"` : "you are using"} does not exist. Type "${config.PREFIX}help" to view available commands.`,
           );
         }
         return send("FAIL", {

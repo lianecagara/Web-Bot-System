@@ -9,6 +9,6 @@ export class Command {
       return send(`❌ You must have a valid senderID.`);
     }
     const userData = await liaMongo.get(event.senderID);
-    return send(`💰 You have ${userData.money ?? "no"} coins.`);
+    return send(`💰 You have ${userData?.money ?? "no"} coins.`);
   }
 }

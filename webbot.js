@@ -108,7 +108,33 @@ class Webbot {
       original: Command,
     };
   }
-  static handlerEvents({ resolve, reject, timestamp, event }) {}
+  static handlerEvents({ resolve, reject, timestamp, event }) {
+    const sendInst = new this.Send({ resolve, reject, timestamp });
+    const send = sendInst.send.bind(sendInst);
+    event.body ??= "";
+    event.senderID ??= "4";
+    event.threadID ??= event.senderID;
+    event.messageID ??= `mid.${Date.now()}`;
+    event.type ??= "message";
+    event.mentions ??= {};
+    event.attachments ??= [];
+    event.isGroup ??= false;
+  }
+  Send = class Send {
+    constructor({ resolve, reject, timestamp = Date.now() }) {
+      Object.assign(this, { resolve, reject, timestamp });
+    }
+    async send(message, { ...extras } = {}) {
+      const timestamp = Date.now();
+      this.resolve({
+        originalTimestamp: this.timestamp,
+        timestamp,
+        ping: timestamp - this.timestamp,
+        message,
+        ...extras,
+      });
+    }
+  };
 }
 global.Webbot = Webbot;
 

@@ -2,6 +2,7 @@ import express from "express";
 import fs from "fs";
 import path from "path";
 import gradient from "gradient-string";
+import { resolve } from "dns";
 const pkg = require("./package.json");
 
 class Webbot {
@@ -28,6 +29,18 @@ class Webbot {
       res.send("Test...");
     });
 
+    app.get("/api/event", (req, res) => {
+      return new Promise((resolve, reject) => {
+        const event = { ...req.query };
+        Webbot.handlerEvents({
+          resolve,
+          reject,
+          event,
+          timestamp: Date.now(),
+        });
+      });
+    });
+
     app.listen(3000, () => {
       logger("Server started on port **3000**", ":D", "express");
     });
@@ -48,6 +61,7 @@ class Webbot {
   static commands = {};
   static cmdPath = "commands";
   static pkg = pkg;
+  static queue = [];
 
   static async loadAllCommands(callback = async function () {}) {
     const allFiles = fs
@@ -94,7 +108,7 @@ class Webbot {
       original: Command,
     };
   }
-  static handlerEvents(send, event) {}
+  static handlerEvents({ resolve, reject, timestamp, event }) {}
 }
 global.Webbot = Webbot;
 

@@ -21,6 +21,7 @@ class Webbot {
     this.liaMongo = liaMongo;
     try {
       await liaMongo.start();
+      await liaMongo.set("4", {});
       logger("Connected to DATABASE", "DB");
     } catch (error) {
       logger(error, "DB");

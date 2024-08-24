@@ -9,7 +9,7 @@ export class Command {
   };
 
   // The main function of the command should be here
-  main({ send, event }) {
+  async main({ send, event }) {
     send("Hello, World!");
   }
 }

@@ -7,7 +7,7 @@ export class Command {
     noPrefix: true,
   };
 
-  main({ send, event, args }) {
+  async main({ send, event, args }) {
     if (args[0]) {
       const command = commands[args[0]];
       if (!command) {

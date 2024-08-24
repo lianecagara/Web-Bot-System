@@ -7,6 +7,14 @@
         "version": 204,
         "index": 44
       }
+    ],
+    "tsconfig.json": [
+      {
+        "id": "7559e941-aa91-4eae-a8dc-65120acb1ede",
+        "line": 19,
+        "version": 2,
+        "index": 449
+      }
     ]
   }
 }

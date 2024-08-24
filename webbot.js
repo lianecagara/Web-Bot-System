@@ -4,13 +4,27 @@ import path from "path";
 import gradient from "gradient-string";
 import { resolve } from "dns";
 const pkg = require("./package.json");
+import LiaMongo from "lia-mongo";
 
 class Webbot {
   static config = require("./config.json");
+  static liaMongo;
   static async main(args) {
     const { logger } = this;
     logger(`Starting **WEB BOT SYSTEM** v${pkg.version}`, "info");
     logger(`Author: **${pkg.author}**`, "info");
+    logger(`Connecting to DATABASE...`, "DB");
+    const liaMongo = new LiaMongo({
+      uri: process.env.MONGO_URI,
+      collection: "webbotdb",
+    });
+    this.liaMongo = liaMongo;
+    try {
+      await liaMongo.start();
+      logger("Connected to DATABASE", "DB");
+    } catch (error) {
+      logger(error, "DB");
+    }
 
     logger(`**| ----- Loading all commands ---- |**`.toUpperCase(), "commands");
     console.log("\n");
@@ -27,7 +41,7 @@ class Webbot {
     );
 
     app.use(express.static(path.join(__dirname, "public")));
-    
+
     app.get("/api/event", async (req, res) => {
       const result = await new Promise((resolve, reject) => {
         const event = { ...req.query };
@@ -150,7 +164,15 @@ class Webbot {
       if (settings.noPrefix !== true && !hasPrefix) {
         return;
       }
-      await main({ send, event, args, resolve, reject, Webbot });
+      await main({
+        send,
+        event,
+        args,
+        resolve,
+        reject,
+        Webbot,
+        liaMongo: this.liaMongo,
+      });
     } catch (error) {
       return send(error.stack);
     }

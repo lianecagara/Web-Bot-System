@@ -5,7 +5,7 @@ function start() {
     cwd: __dirname,
     stdio: "inherit",
     shell: true,
-    env: { ...process.env, FORCE_COLOR: true },
+    env: process.env,
   });
   child.on("close", (code) => {
     if (code === 2) {
@@ -13,3 +13,5 @@ function start() {
     }
   });
 }
+
+start();

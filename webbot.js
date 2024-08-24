@@ -6,6 +6,7 @@ import { resolve } from "dns";
 const pkg = require("./package.json");
 
 class Webbot {
+  static config = require("./config.json");
   static async main(args) {
     const { logger } = this;
     logger(`Starting **WEB BOT SYSTEM** v${pkg.version}`, "info");
@@ -108,17 +109,43 @@ class Webbot {
       original: Command,
     };
   }
-  static handlerEvents({ resolve, reject, timestamp, event }) {
+  static async handlerEvents({ resolve, reject, timestamp, event = {} }) {
     const sendInst = new this.Send({ resolve, reject, timestamp });
     const send = sendInst.send.bind(sendInst);
-    event.body ??= "";
-    event.senderID ??= "4";
-    event.threadID ??= event.senderID;
-    event.messageID ??= `mid.${Date.now()}`;
-    event.type ??= "message";
-    event.mentions ??= {};
-    event.attachments ??= [];
-    event.isGroup ??= false;
+    try {
+      event.body ??= "";
+      event.senderID ??= "4";
+      event.threadID ??= event.senderID;
+      event.messageID ??= `mid.${Date.now()}`;
+      event.type ??= "message";
+      event.mentions ??= {};
+      event.attachments ??= [];
+      event.isGroup ??= false;
+      event.timestamp ??= timestamp;
+      const { config, commands } = this;
+
+      let [commandName, ...args] = event.body.split(" ");
+      let hasPrefix = commandName.startsWith(config.PREFIX);
+      if (hasPrefix) {
+        commandName = commandName.slice(config.PREFIX.length);
+      }
+      const match = Object.keys(commands).find(
+        (key) =>
+          String(key).toLowerCase().replaceAll(" ", "") ===
+          commandName.toLowerCase(),
+      );
+      const command = commands[match];
+      if (!command) {
+        return send(`❌ Command "${commandName}" not found.`);
+      }
+      const { settings, main } = command;
+      if (settings.noPrefix !== true && !hasPrefix) {
+        return;
+      }
+      await main({ send, event, args, resolve, reject, Webbot });
+    } catch (error) {
+      return send(error.stack);
+    }
   }
   Send = class Send {
     constructor({ resolve, reject, timestamp = Date.now() }) {

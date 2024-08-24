@@ -39,6 +39,11 @@ export class Command {
       walrus: "🦭",
       platypus: "🦦",
     };
+    if (Math.random() > 0.5) {
+      return send(
+        `You went hunting but didn't find any animals this time. Better luck next time!`,
+      );
+    }
 
     const animalNames = Object.keys(animals);
     const randomIndex = Math.floor(Math.random() * animalNames.length);

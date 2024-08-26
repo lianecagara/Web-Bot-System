@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
         },
       });
       if (!data.fail) {
-        chatBox.value += `${data.message}\n\n`;
+        chatBox.value += `${data.message.trim()}\n\n`;
       }
       chatBox.scrollTop = chatBox.scrollHeight;
     }

@@ -1,0 +1,22 @@
+Update 1.1.0
+
+Upgrade:
+  + Website
+    + Added Music
+    + Updated Style
+  + Help Cmd
+    + Fixed Design
+  + New Command Structure For The Settings
+
+  
+    export class Command {
+  settings = {
+    name: "",
+    version: "", 
+    category: "", 
+    cooldown: "", // IMPLEMENT MO TO LIANE
+    permission: "", // IMPLEMENT MO TO LIANE
+    creator: "", 
+    description: "",
+    noPrefix: true,
+  };

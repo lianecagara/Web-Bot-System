@@ -6,7 +6,7 @@ export class Command {
     description: "Ask AI",
     noPrefix: true,
     aliases: ["ask", "axis"],
-    author: "Liane Cagara",
+    creator: "Liane Cagara",
   };
 
   async main({ send, event, args }) {

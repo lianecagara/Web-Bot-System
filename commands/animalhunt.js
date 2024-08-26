@@ -3,7 +3,7 @@ export class Command {
     name: "animalhunt",
     description: "You went hunting and caught an animal!",
     noPrefix: true,
-    author: "Karina & Liane Cagara",
+    creator: "Karina & Liane Cagara",
   };
 
   async main({ send, liaMongo, event }) {

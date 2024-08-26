@@ -1,4 +1,4 @@
-const { commands, config } = global.Webbot;
+const { commands, config, aliases } = global.Webbot;
 
 export class Command {
   settings = {
@@ -59,6 +59,7 @@ export class Command {
           `•  Category: ${settings.category || "General"}\n` +
           `•  Cooldown: ${settings.cooldown || 0}\n` +
           `•  Permission: ${settings.permission || 0} (All users)\n` +
+          `• Aliases: ${settings.aliases ? settings.aliases.join(", ") : "None"}` +
           `•  Creator: ${settings.creator || "Unknown"}`,
       );
     }

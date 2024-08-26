@@ -51,7 +51,10 @@ class Webbot {
       if (error) {
         return logger("**FAIL!!**", error, file);
       }
-      logger(`Loaded from **${file}**.`, data.settings.name);
+      logger(
+        `Loaded from **${file}**. ${(data.settings.aliases ?? []).join(", ")}`,
+        data.settings.name,
+      );
     });
     console.log("\n");
     logger(
@@ -144,6 +147,22 @@ class Webbot {
     if (typeof main !== "function") {
       throw new Error("Command main must be a function");
     }
+    if (this.commands[settings.name]) {
+      throw new Error(
+        `Command with the name "${settings.name}" already exists.`,
+      );
+    }
+    if (Array.isArray(settings.aliases)) {
+      settings.aliases = [...new Set(settings.aliases)];
+      for (const alias of settings.aliases) {
+        if (this.aliases[alias]) {
+          throw new Error(
+            `Alias/command name "${alias}" already exists in another command.`,
+          );
+        }
+        this.aliases[alias] = settings.name;
+      }
+    }
     this.commands[settings.name] = command;
     return {
       file,
@@ -167,7 +186,7 @@ class Webbot {
       event.attachments ??= [];
       event.isGroup ??= false;
       event.timestamp ??= timestamp;
-      const { config, commands } = this;
+      const { config, commands, aliases } = this;
 
       // using array destructing, we can get the command name and extra args
       let [commandName = "", ...args] = event.body.split(" ");
@@ -186,14 +205,20 @@ class Webbot {
       }
 
       // CASE-SENSITIVE matching, regardless if the command name or the input has different cases. also ignoring spaces but who the fuck will add spaces to the command name?
-      const match = Object.keys(commands).find(
+      const match = [...Object.keys(commands), ...Object.keys(aliases)].find(
         (key) =>
           String(key).toLowerCase().replaceAll(" ", "") ===
           commandName.toLowerCase(),
       );
 
       // get the command data
-      const command = commands[match];
+      let command = commands[match];
+      // Plan B: check if there's an aliased command or the 'match' matches the aliases.
+      let originalName = match;
+      if (!command) {
+        originalName = aliases[match];
+        command = commands[originalName];
+      }
       if (!command) {
         // if the command is missing and it has prefix, notify that it doesn't exist.
         if (hasPrefix) {
